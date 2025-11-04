@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Puaki.Dev</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+  </head>
+
+  <body>
+    <!-- Mobile Top Bar -->
+    <div class="top-bar">
+      <a href="{{ url_for('home') if current_user.is_authenticated else '#' }}" class="mobile-brand">
+        <i class="bi bi-pen-fill"></i>
+        <span>PUAKKI</span>
+      </a>
+      <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+      </button>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Brand -->
+      <a href="{{ url_for('home') if current_user.is_authenticated else '#' }}" class="sidebar-brand">
+        <i class="bi bi-pen-fill"></i>
+        <span>PUAKKI</span>
+      </a>
+
+      <!-- Navigation -->
+      <ul class="sidebar-nav">
+        {% if current_user.is_authenticated %}
+        <li class="nav-item-sidebar">
+          <a class="nav-link-sidebar active" href="{{ url_for('home') }}">
+            <i class="bi bi-house-fill"></i>
+            <span>Home</span>
+          </a>
+        </li>
+        <li class="nav-item-sidebar">
+          <a class="nav-link-sidebar" href="#">
+            <i class="bi bi-search"></i>
+            <span>Explore</span>
+          </a>
+        </li>
+        <li class="nav-item-sidebar">
+          <a class="nav-link-sidebar" href="#">
+            <i class="bi bi-bell"></i>
+            <span>Notifications</span>
+          </a>
+        </li>
+        <li class="nav-item-sidebar">
+          <a class="nav-link-sidebar" href="#">
+            <i class="bi bi-envelope"></i>
+            <span>Messages</span>
+          </a>
+        </li>
+        <li class="nav-item-sidebar">
+          <a class="nav-link-sidebar" href="#">
+            <i class="bi bi-bookmark"></i>
+            <span>Bookmarks</span>
+          </a>
+        </li>
+        <li class="nav-item-sidebar">
+          <a class="nav-link-sidebar" href="{{ url_for('account') }}">
+            <i class="bi bi-person"></i>
+            <span>Profile</span>
+          </a>
+        </li>
+        <li class="nav-item-sidebar">
+          <a class="nav-link-sidebar" href="#">
+            <i class="bi bi-three-dots"></i>
+            <span>More</span>
+          </a>
+        </li>
+        {% else %}
+        <li class="nav-item-sidebar">
+          <a class="nav-link-sidebar" href="{{ url_for('login') }}">
+            <i class="bi bi-box-arrow-in-right"></i>
+            <span>Login</span>
+          </a>
+        </li>
+        <li class="nav-item-sidebar">
+          <a class="nav-link-sidebar" href="{{ url_for('register') }}">
+            <i class="bi bi-person-plus"></i>
+            <span>Register</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+
+      <!-- Post Button -->
+      {% if current_user.is_authenticated %}
+      <a href="{{ url_for('new_post') }}" class="btn btn-primary w-100 mb-3">
+        <i class="bi bi-plus-circle me-2"></i>Post
+      </a>
+      {% endif %}
+
+      <!-- User Profile (Footer) -->
+      {% if current_user.is_authenticated %}
+      <div class="sidebar-footer">
+        <div class="dropdown w-100">
+          <div class="user-profile" data-bs-toggle="dropdown" aria-expanded="false">
+            <img 
+              src="{{ url_for('static', filename='imgs/' + current_user.image_file) }}" 
+              alt="{{ current_user.username }}"
+              class="user-avatar"
+            />
+            <div class="user-info">
+              <span class="user-name">{{ current_user.username }}</span>
+              <span class="user-email">@{{ current_user.username|lower }}</span>
+            </div>
+            <i class="bi bi-three-dots"></i>
+          </div>
+          
+          <!-- User Menu Dropdown -->
+          <ul class="dropdown-menu dropdown-menu-end w-100">
+            <li>
+              <a class="dropdown-item" href="{{ url_for('account') }}">
+                <i class="bi bi-person me-2"></i>Profile Settings
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">
+                <i class="bi bi-bookmark me-2"></i>Bookmarks
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">
+                <i class="bi bi-gear me-2"></i>Settings
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
+                <i class="bi bi-box-arrow-right me-2"></i>Logout
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      {% endif %}
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-container">
+      <!-- Flash Messages -->
+      <div class="content-wrapper">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{category}} alert-dismissible fade show" role="alert">
+              <i class="bi bi-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script>
+      // Toggle sidebar on mobile
+      function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+      }
+
+      // Close sidebar when clicking outside on mobile
+      document.addEventListener('click', function(event) {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.querySelector('.mobile-menu-toggle');
+        
+        if (window.innerWidth <= 768) {
+          if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+            sidebar.classList.remove('active');
+          }
+        }
+      });
+
+      // Sidebar auto-hide on scroll (Desktop)
+      let lastScrollTop = 0;
+      const sidebar = document.getElementById('sidebar');
+      const mainContainer = document.querySelector('.main-container');
+      let ticking = false;
+
+      function updateSidebarPosition(scrollTop) {
+        if (window.innerWidth > 768) {
+          if (scrollTop > lastScrollTop && scrollTop > 100) {
+            // Scrolling down - hide sidebar
+            sidebar.style.transform = 'translateX(-100%)';
+            mainContainer.style.marginLeft = '0';
+          } else {
+            // Scrolling up - show sidebar
+            sidebar.style.transform = 'translateX(0)';
+            mainContainer.style.marginLeft = 'var(--sidebar-width)';
+          }
+          lastScrollTop = scrollTop;
+        }
+      }
+
+      window.addEventListener('scroll', function() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        if (!ticking) {
+          window.requestAnimationFrame(function() {
+            updateSidebarPosition(scrollTop);
+            ticking = false;
+          });
+          ticking = true;
+        }
+      });
+
+      // Reset on window resize
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+          sidebar.style.transform = 'translateX(0)';
+          mainContainer.style.marginLeft = 'var(--sidebar-width)';
+        } else {
+          sidebar.style.transform = '';
+          mainContainer.style.marginLeft = '0';
+        }
+      });
+    </script>
+  </body>
+</html>

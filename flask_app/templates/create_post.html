@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="create-post-container">
+  <!-- Header -->
+  <div class="create-post-header">
+    <a href="{{ url_for('home') }}" class="btn-back-nav">
+      <i class="bi bi-arrow-left me-2"></i>
+      <span>Cancel</span>
+    </a>
+    <h2 class="create-post-title">
+      <i class="bi bi-{% if legend == 'New Post' %}plus-circle{% else %}pencil-square{% endif %} me-2"></i>
+      {{ legend }}
+    </h2>
+    <div></div>
+  </div>
+
+  <!-- Form Card -->
+  <div class="create-post-card">
+    <form action="" method="POST" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+
+      <!-- Author Info -->
+      <div class="post-author-info mb-4">
+        <img 
+          src="{{ url_for('static', filename='imgs/' + current_user.image_file) }}" 
+          alt="{{ current_user.username }}"
+          class="author-avatar-small"
+        />
+        <div>
+          <p class="author-name-small mb-0">{{ current_user.username }}</p>
+          <p class="author-handle-small mb-0">@{{ current_user.username|lower }}</p>
+        </div>
+      </div>
+
+      <!-- Title Field -->
+      <div class="form-group mb-4">
+        <label class="form-label">
+          <i class="bi bi-type-h1 me-2"></i>Title
+        </label>
+        {% if form.title.errors %}
+          {{ form.title(class="form-control form-control-lg is-invalid", placeholder="Give your post a catchy title...") }}
+          <div class="invalid-feedback">
+            {% for error in form.title.errors %}
+              {{ error }}
+            {% endfor %}
+          </div>
+        {% else %}
+          {{ form.title(class="form-control form-control-lg", placeholder="Give your post a catchy title...") }}
+        {% endif %}
+        <small class="form-text text-muted">
+          <i class="bi bi-lightbulb me-1"></i>A good title grabs attention
+        </small>
+      </div>
+
+      <!-- Content Field -->
+      <div class="form-group mb-4">
+        <label class="form-label">
+          <i class="bi bi-textarea-t me-2"></i>Content
+        </label>
+        {% if form.content.errors %}
+          {{ form.content(class="form-control is-invalid", rows="10", placeholder="Share your story, thoughts, or ideas...") }}
+          <div class="invalid-feedback">
+            {% for error in form.content.errors %}
+              {{ error }}
+            {% endfor %}
+          </div>
+        {% else %}
+          {{ form.content(class="form-control", rows="10", placeholder="Share your story, thoughts, or ideas...", id="contentInput") }}
+        {% endif %}
+        <div class="d-flex justify-content-between mt-2">
+          <small class="form-text text-muted">
+            <i class="bi bi-info-circle me-1"></i>Express yourself freely
+          </small>
+          <small class="text-muted">
+            <span id="charCount">0</span> characters
+          </small>
+        </div>
+      </div>
+
+      <!-- Image Upload -->
+      <div class="form-group mb-4">
+        <label class="form-label">
+          <i class="bi bi-image me-2"></i>Featured Image (Optional)
+        </label>
+        <div class="image-upload-area" id="imageUploadArea">
+          {{ form.image(class="form-control d-none", id="imageInput") }}
+          <div class="upload-placeholder" id="uploadPlaceholder">
+            <i class="bi bi-cloud-upload fs-1"></i>
+            <p class="mt-2 mb-1">Click to upload or drag and drop</p>
+            <small class="text-muted">PNG, JPG or GIF (MAX. 5MB)</small>
+          </div>
+          <div class="image-preview d-none" id="imagePreview">
+            <img src="" alt="Preview" id="previewImage">
+            <button type="button" class="btn-remove-image" onclick="removeImage()">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </div>
+        {% if form.image.errors %}
+          <div class="text-danger mt-2">
+            {% for error in form.image.errors %}
+              <i class="bi bi-exclamation-circle me-1"></i>{{ error }}<br>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Tips Card -->
+      <div class="tips-card mb-4">
+        <h5 class="tips-title">
+          <i class="bi bi-lightbulb me-2"></i>Writing Tips
+        </h5>
+        <ul class="tips-list">
+          <li><i class="bi bi-check-circle me-2"></i>Be authentic and share your genuine voice</li>
+          <li><i class="bi bi-check-circle me-2"></i>Use clear, engaging language</li>
+          <li><i class="bi bi-check-circle me-2"></i>Break content into readable paragraphs</li>
+          <li><i class="bi bi-check-circle me-2"></i>Add an image to make your post stand out</li>
+        </ul>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">
+          <i class="bi bi-x-circle me-2"></i>Cancel
+        </a>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-outline-primary" onclick="previewPost()">
+            <i class="bi bi-eye me-2"></i>Preview
+          </button>
+          {{ form.submit(class="btn btn-primary px-4") }}
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Character counter
+const contentInput = document.getElementById('contentInput');
+const charCount = document.getElementById('charCount');
+
+if (contentInput && charCount) {
+  contentInput.addEventListener('input', function() {
+    charCount.textContent = this.value.length;
+  });
+  charCount.textContent = contentInput.value.length;
+}
+
+// Image upload preview
+const imageInput = document.getElementById('imageInput');
+const uploadArea = document.getElementById('imageUploadArea');
+const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+const imagePreview = document.getElementById('imagePreview');
+const previewImage = document.getElementById('previewImage');
+
+if (uploadArea && imageInput) {
+  // Click to upload
+  uploadPlaceholder.addEventListener('click', function() {
+    imageInput.click();
+  });
+
+  // File input change
+  imageInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewImage.src = e.target.result;
+        uploadPlaceholder.classList.add('d-none');
+        imagePreview.classList.remove('d-none');
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Drag and drop
+  uploadArea.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    this.style.borderColor = 'var(--accent-primary)';
+  });
+
+  uploadArea.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    this.style.borderColor = 'var(--border-color)';
+  });
+
+  uploadArea.addEventListener('drop', function(e) {
+    e.preventDefault();
+    this.style.borderColor = 'var(--border-color)';
+    
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      imageInput.files = e.dataTransfer.files;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewImage.src = e.target.result;
+        uploadPlaceholder.classList.add('d-none');
+        imagePreview.classList.remove('d-none');
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+}
+
+// Remove image
+function removeImage() {
+  imageInput.value = '';
+  previewImage.src = '';
+  uploadPlaceholder.classList.remove('d-none');
+  imagePreview.classList.add('d-none');
+}
+
+// Preview post (placeholder function)
+function previewPost() {
+  alert('Preview feature coming soon!');
+}
+</script>
+
+{% endblock %}

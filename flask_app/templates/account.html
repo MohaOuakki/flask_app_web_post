@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="profile-container">
+  <!-- Profile Header -->
+  <div class="profile-header-card">
+    <div class="profile-cover"></div>
+    <div class="profile-info-section">
+      <div class="profile-avatar-container">
+        <img 
+          src="{{ image_file }}" 
+          alt="{{ current_user.username }}"
+          class="profile-avatar-large"
+        />
+        <button class="avatar-edit-btn" data-bs-toggle="modal" data-bs-target="#editAvatarModal">
+          <i class="bi bi-camera"></i>
+        </button>
+      </div>
+      
+      <div class="profile-stats">
+        <div class="stat-item">
+          <span class="stat-number">0</span>
+          <span class="stat-label">Posts</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">0</span>
+          <span class="stat-label">Followers</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">0</span>
+          <span class="stat-label">Following</span>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <h1 class="profile-name">{{ current_user.username }}</h1>
+        <p class="profile-username">@{{ current_user.username|lower }}</p>
+        <p class="profile-bio">
+          <i class="bi bi-envelope me-2"></i>{{ current_user.email }}
+        </p>
+        <div class="profile-meta">
+          <span class="meta-item">
+            <i class="bi bi-calendar3 me-1"></i>Joined January 2025
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Profile Section -->
+  <div class="settings-card mt-4">
+    <div class="settings-header">
+      <h3>
+        <i class="bi bi-gear me-2"></i>Profile Settings
+      </h3>
+      <p class="text-muted mb-0">Update your account information</p>
+    </div>
+
+    <form action="" method="POST" enctype="multipart/form-data" class="settings-form">
+      {{ form.hidden_tag() }}
+
+      <div class="row g-4">
+        <!-- Username -->
+        <div class="col-md-6">
+          <label class="form-label">
+            <i class="bi bi-person me-2"></i>Username
+          </label>
+          {% if form.username.errors %}
+            {{ form.username(class="form-control is-invalid") }}
+            <div class="invalid-feedback">
+              {% for error in form.username.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% else %}
+            {{ form.username(class="form-control") }}
+          {% endif %}
+        </div>
+
+        <!-- Email -->
+        <div class="col-md-6">
+          <label class="form-label">
+            <i class="bi bi-envelope me-2"></i>Email
+          </label>
+          {% if form.email.errors %}
+            {{ form.email(class="form-control is-invalid") }}
+            <div class="invalid-feedback">
+              {% for error in form.email.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% else %}
+            {{ form.email(class="form-control") }}
+          {% endif %}
+        </div>
+
+        <!-- Profile Picture -->
+        <div class="col-12">
+          <label class="form-label">
+            <i class="bi bi-image me-2"></i>Profile Picture
+          </label>
+          <div class="file-upload-area">
+            {{ form.picture(class="form-control", id="fileInput") }}
+            <div class="file-upload-placeholder" id="uploadPlaceholder">
+              <i class="bi bi-cloud-upload fs-1"></i>
+              <p class="mt-2 mb-0">Click to upload or drag and drop</p>
+              <small class="text-muted">PNG, JPG or GIF (MAX. 2MB)</small>
+            </div>
+            {% if form.picture.errors %}
+              <div class="text-danger mt-2">
+                {% for error in form.picture.errors %}
+                  <i class="bi bi-exclamation-circle me-1"></i>{{ error }}<br>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="settings-footer">
+        <button type="button" class="btn btn-secondary" onclick="window.location.href='{{ url_for('home') }}'">
+          <i class="bi bi-x-circle me-2"></i>Cancel
+        </button>
+        {{ form.submit(class="btn btn-primary") }}
+      </div>
+    </form>
+  </div>
+
+  <!-- Additional Settings Cards -->
+  <div class="row g-4 mt-2">
+    <!-- Privacy Settings -->
+    <div class="col-md-6">
+      <div class="mini-settings-card">
+        <div class="mini-card-icon">
+          <i class="bi bi-shield-check"></i>
+        </div>
+        <h4>Privacy & Safety</h4>
+        <p class="text-muted">Manage your privacy settings and blocked accounts</p>
+        <button class="btn btn-outline-primary btn-sm">
+          Configure <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Notification Settings -->
+    <div class="col-md-6">
+      <div class="mini-settings-card">
+        <div class="mini-card-icon">
+          <i class="bi bi-bell"></i>
+        </div>
+        <h4>Notifications</h4>
+        <p class="text-muted">Choose what notifications you receive</p>
+        <button class="btn btn-outline-primary btn-sm">
+          Configure <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Theme Settings -->
+    <div class="col-md-6">
+      <div class="mini-settings-card">
+        <div class="mini-card-icon">
+          <i class="bi bi-palette"></i>
+        </div>
+        <h4>Appearance</h4>
+        <p class="text-muted">Customize your display and theme preferences</p>
+        <button class="btn btn-outline-primary btn-sm">
+          Configure <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Connected Accounts -->
+    <div class="col-md-6">
+      <div class="mini-settings-card">
+        <div class="mini-card-icon">
+          <i class="bi bi-link-45deg"></i>
+        </div>
+        <h4>Connected Accounts</h4>
+        <p class="text-muted">Link your social media accounts</p>
+        <button class="btn btn-outline-primary btn-sm">
+          Manage <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Avatar Modal -->
+<div class="modal fade" id="editAvatarModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-camera me-2"></i>Change Profile Picture
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted mb-3">Upload a new profile picture to personalize your account</p>
+        <div class="text-center">
+          <img 
+            src="{{ image_file }}" 
+            alt="Current avatar"
+            class="img-thumbnail mb-3"
+            style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;"
+          />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click(); this.closest('.modal').querySelector('[data-bs-dismiss]').click();">
+          <i class="bi bi-upload me-2"></i>Upload New
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// File upload preview
+document.getElementById('fileInput').addEventListener('change', function(e) {
+  const fileName = e.target.files[0]?.name;
+  const placeholder = document.getElementById('uploadPlaceholder');
+  if (fileName) {
+    placeholder.innerHTML = `
+      <i class="bi bi-file-earmark-check fs-1 text-success"></i>
+      <p class="mt-2 mb-0">${fileName}</p>
+      <small class="text-muted">File selected</small>
+    `;
+  }
+});
+</script>
+
+{% endblock %}
