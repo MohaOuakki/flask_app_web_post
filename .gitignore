@@ -13,3 +13,7 @@ venv/
 
 # Ignore VS Code settings
 .vscode/
+
+flask_app/static/imgs/
+flask_app/static/uploads/
+
