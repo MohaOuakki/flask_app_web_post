@@ -1,0 +1,15 @@
+# Ignore environment and config files
+.env
+config.py
+
+# Ignore database files
+*.db
+*.sqlite
+site.db
+
+# Ignore Python cache and virtual environment
+__pycache__/
+venv/
+
+# Ignore VS Code settings
+.vscode/
