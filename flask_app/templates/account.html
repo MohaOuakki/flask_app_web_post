@@ -119,9 +119,9 @@
 
       <!-- Action Buttons -->
       <div class="settings-footer">
-        <button type="button" class="btn btn-secondary" onclick="window.location.href='{{ url_for('home') }}'">
+        <a class="btn btn-secondary" href="{{ url_for('home') }}">
           <i class="bi bi-x-circle me-2"></i>Cancel
-        </button>
+        </a>
         {{ form.submit(class="btn btn-primary") }}
       </div>
     </form>
