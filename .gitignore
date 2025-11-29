@@ -10,7 +10,6 @@ site.db
 
 __pycache__/
 venv/
-flask_app/__pycache__/
 
 
 .vscode/
